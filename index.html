@@ -30,13 +30,20 @@
 
         /* 赤シートスイッチの装飾 */
         .controls {
-            margin-bottom: 30px;
-            position: sticky;
+            position: fixed;
             top: 0;
+            left: 0;
+            right: 0;
             background-color: #fcfaf2;
             z-index: 100;
             padding: 12px 0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
+        }
+
+        body {
+            padding-top: 65px;
         }
 
         .switch-container {
