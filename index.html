@@ -462,22 +462,10 @@
         }
 
         // 赤シート解除トグル
-        let revealTimeouts = {}; // タイマーを管理するオブジェクト
-
         function toggleReveal(element) {
             if (document.body.classList.contains('hide-mode')) {
-                // 既存のタイマーがあれば解除
-                const key = element;
-                if (revealTimeouts[key]) {
-                    clearTimeout(revealTimeouts[key]);
-                }
-                
                 element.classList.add('revealed');
-                // 一度見えた後、自動的に赤シートに戻す（500ms後）
-                revealTimeouts[key] = setTimeout(() => {
-                    element.classList.remove('revealed');
-                    delete revealTimeouts[key];
-                }, 500);
+                // 自動で戻らず、赤シートボタンを押すまで表示されたままにする
             }
         }
 
