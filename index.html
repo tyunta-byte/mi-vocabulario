@@ -46,6 +46,81 @@
             padding-top: 65px;
         }
 
+        body.theme-cream {
+            background: linear-gradient(180deg, #fcfaf2 0%, #f7f1e8 100%);
+        }
+
+        body.theme-mint {
+            background: linear-gradient(180deg, #e8f8f5 0%, #d2f0e8 100%);
+        }
+
+        body.theme-night {
+            background: linear-gradient(180deg, #121836 0%, #3b4976 100%);
+            color: #f1f5ff;
+        }
+
+        body.theme-custom {
+            /* custom background is set by inline style */
+        }
+
+        body.theme-night .card {
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border-color: rgba(255,255,255,0.12);
+        }
+
+        body.theme-night .word-main,
+        body.theme-night .section-title,
+        body.theme-night .nav-btn,
+        body.theme-night label,
+        body.theme-night input,
+        body.theme-night select,
+        body.theme-night .search-box input {
+            color: #f1f5ff;
+        }
+
+        body.theme-night .switch-container,
+        body.theme-night .add-form,
+        body.theme-night .card,
+        body.theme-night .search-box input {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.18);
+        }
+
+        .background-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .background-controls select,
+        .background-controls input[type="color"] {
+            padding: 10px 12px;
+            border-radius: 999px;
+            border: 2px solid #ddd;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .background-controls input[type="color"] {
+            width: 45px;
+            height: 45px;
+            padding: 0;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+        }
+
+        .background-controls select:focus,
+        .background-controls input[type="color"]:focus {
+            outline: none;
+            border-color: #2a9d8f;
+            box-shadow: 0 0 0 4px rgba(42,157,143,0.12);
+        }
+
         .switch-container {
             cursor: pointer;
             font-weight: bold;
@@ -104,7 +179,7 @@
             max-width: 1000px;
         }
 
-        /* ステッカー風カードデザイン */
+        /* カードの裏返しアニメーション */
         .card {
             background: white;
             width: 200px;
@@ -115,6 +190,54 @@
             text-align: center;
             transition: transform 0.2s, box-shadow 0.2s;
             border: 2px solid transparent;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 23px;
+        }
+
+        .card-back .word-main {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .card-back .conjugations {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .card-back .conjugation-item {
+            margin: 5px 0;
         }
 
         .card:hover {
@@ -415,6 +538,16 @@
             <button class="nav-btn special" onclick="scrollToSection('special')">その他</button>
         </div>
 
+        <div class="background-controls">
+            <select id="backgroundTheme">
+                <option value="cream">クリーム</option>
+                <option value="mint">ミント</option>
+                <option value="night">ナイト</option>
+                <option value="custom">カスタム</option>
+            </select>
+            <input type="color" id="backgroundColorPicker" value="#fcfaf2" style="display: none;" />
+        </div>
+
         <div class="search-box">
             <label for="searchInput">日本語検索</label>
             <input type="search" id="searchInput" placeholder="日本語で検索：月、太陽、ありがとう など" />
@@ -478,13 +611,77 @@
         function createCard(word, trans, cat, index) {
             const card = document.createElement('div');
             card.className = `card ${cat}`;
+            card.onclick = () => flipCard(card, index);
+
+            const conjugations = generateConjugations(word);
+
             card.innerHTML = `
-                <button class="delete-btn" onclick="deleteWord(${index})" title="削除">×</button>
-                <span class="word-main">${word}</span>
-                <hr>
-                <span class="word-sub" onclick="toggleReveal(this)">${trans}</span>
+                <div class="card-inner">
+                    <div class="card-front">
+                        <button class="delete-btn" onclick="deleteWord(${index}); event.stopPropagation();" title="削除">×</button>
+                        <span class="word-main">${word}</span>
+                        <hr>
+                        <span class="word-sub" onclick="toggleReveal(this); event.stopPropagation();">${trans}</span>
+                    </div>
+                    <div class="card-back">
+                        <span class="word-main">${word}</span>
+                        <div class="conjugations">${conjugations}</div>
+                    </div>
+                </div>
             `;
             return card;
+        }
+
+        // カードを裏返す
+        function flipCard(card, index) {
+            card.classList.toggle('flipped');
+        }
+
+        // 活用系を生成（動詞の場合）
+        function generateConjugations(word) {
+            const lowerWord = word.toLowerCase().trim();
+
+            // 動詞かどうかチェック（-ar, -er, -irで終わる）
+            const verbMatch = lowerWord.match(/^(.+)(ar|er|ir)$/);
+            if (!verbMatch) {
+                return '<div class="conjugation-item">活用なし</div>';
+            }
+
+            const stem = verbMatch[1];
+            const ending = verbMatch[2];
+
+            let conjugations = '';
+
+            if (ending === 'ar') {
+                conjugations = `
+                    <div class="conjugation-item"><strong>yo:</strong> ${stem}o</div>
+                    <div class="conjugation-item"><strong>tú:</strong> ${stem}as</div>
+                    <div class="conjugation-item"><strong>él/ella:</strong> ${stem}a</div>
+                    <div class="conjugation-item"><strong>nosotros:</strong> ${stem}amos</div>
+                    <div class="conjugation-item"><strong>vosotros:</strong> ${stem}áis</div>
+                    <div class="conjugation-item"><strong>ellos:</strong> ${stem}an</div>
+                `;
+            } else if (ending === 'er') {
+                conjugations = `
+                    <div class="conjugation-item"><strong>yo:</strong> ${stem}o</div>
+                    <div class="conjugation-item"><strong>tú:</strong> ${stem}es</div>
+                    <div class="conjugation-item"><strong>él/ella:</strong> ${stem}e</div>
+                    <div class="conjugation-item"><strong>nosotros:</strong> ${stem}emos</div>
+                    <div class="conjugation-item"><strong>vosotros:</strong> ${stem}éis</div>
+                    <div class="conjugation-item"><strong>ellos:</strong> ${stem}en</div>
+                `;
+            } else if (ending === 'ir') {
+                conjugations = `
+                    <div class="conjugation-item"><strong>yo:</strong> ${stem}o</div>
+                    <div class="conjugation-item"><strong>tú:</strong> ${stem}es</div>
+                    <div class="conjugation-item"><strong>él/ella:</strong> ${stem}e</div>
+                    <div class="conjugation-item"><strong>nosotros:</strong> ${stem}imos</div>
+                    <div class="conjugation-item"><strong>vosotros:</strong> ${stem}ís</div>
+                    <div class="conjugation-item"><strong>ellos:</strong> ${stem}en</div>
+                `;
+            }
+
+            return conjugations;
         }
 
         // 単語を削除
@@ -604,6 +801,45 @@
             }
         }
 
+        // 背景テーマの設定
+        function applyBackgroundTheme(theme, customColor) {
+            document.body.classList.remove('theme-cream', 'theme-mint', 'theme-night', 'theme-custom');
+            document.body.style.background = '';
+            if (theme === 'cream') {
+                document.body.classList.add('theme-cream');
+            } else if (theme === 'mint') {
+                document.body.classList.add('theme-mint');
+            } else if (theme === 'night') {
+                document.body.classList.add('theme-night');
+            } else if (theme === 'custom') {
+                document.body.classList.add('theme-custom');
+                document.body.style.background = customColor || '#fcfaf2';
+            }
+        }
+
+        function saveBackgroundSettings(theme, customColor) {
+            localStorage.setItem('backgroundTheme', theme);
+            if (theme === 'custom') {
+                localStorage.setItem('backgroundColor', customColor);
+            }
+        }
+
+        function loadBackgroundSettings() {
+            const savedTheme = localStorage.getItem('backgroundTheme') || 'cream';
+            const savedColor = localStorage.getItem('backgroundColor') || '#fcfaf2';
+            const themeSelect = document.getElementById('backgroundTheme');
+            const colorPicker = document.getElementById('backgroundColorPicker');
+
+            if (themeSelect) {
+                themeSelect.value = savedTheme;
+            }
+            if (colorPicker) {
+                colorPicker.value = savedColor;
+                colorPicker.style.display = savedTheme === 'custom' ? 'inline-block' : 'none';
+            }
+            applyBackgroundTheme(savedTheme, savedColor);
+        }
+
         // カテゴリ自動判定関数
         function detectCategory(word) {
             const lowerWord = word.toLowerCase().trim();
@@ -676,6 +912,33 @@
             searchInput.addEventListener('input', renderCards);
         }
 
+        const backgroundThemeSelect = document.getElementById('backgroundTheme');
+        const backgroundColorPicker = document.getElementById('backgroundColorPicker');
+
+        if (backgroundThemeSelect) {
+            backgroundThemeSelect.addEventListener('change', () => {
+                const theme = backgroundThemeSelect.value;
+                const color = backgroundColorPicker.value;
+                if (theme === 'custom') {
+                    backgroundColorPicker.style.display = 'inline-block';
+                } else {
+                    backgroundColorPicker.style.display = 'none';
+                }
+                applyBackgroundTheme(theme, color);
+                saveBackgroundSettings(theme, color);
+            });
+        }
+
+        if (backgroundColorPicker) {
+            backgroundColorPicker.addEventListener('input', () => {
+                const theme = backgroundThemeSelect.value;
+                if (theme === 'custom') {
+                    applyBackgroundTheme(theme, backgroundColorPicker.value);
+                    saveBackgroundSettings(theme, backgroundColorPicker.value);
+                }
+            });
+        }
+
         // 赤シートトグル
         const toggle = document.getElementById('redSheetToggle');
         toggle.addEventListener('click', () => {
@@ -693,6 +956,7 @@
 
         // ページ読み込み時に実行
         loadVocab();
+        loadBackgroundSettings();
         renderCards();
     </script>
 
