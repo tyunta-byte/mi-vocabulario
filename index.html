@@ -535,7 +535,7 @@
             <button class="nav-btn female" onclick="scrollToSection('female')">女性名詞</button>
             <button class="nav-btn male" onclick="scrollToSection('male')">男性名詞</button>
             <button class="nav-btn academic" onclick="scrollToSection('academic')">学術用語</button>
-            <button class="nav-btn special" onclick="scrollToSection('special')">その他</button>
+            <button class="nav-btn special" onclick="scrollToSection('special')">動詞</button>
         </div>
 
         <div class="background-controls">
@@ -571,7 +571,7 @@
                 <option value="female">女性名詞（ピンク）</option>
                 <option value="male">男性名詞（ブルー）</option>
                 <option value="academic">学術用語（ゴールド）</option>
-                <option value="special">その他（グリーン）</option>
+                <option value="special">動詞（グリーン）</option>
             </select>
         </div>
         <button class="add-button" onclick="addNewWord()">追加</button>
@@ -591,7 +591,7 @@
             female: '女性名詞',
             male: '男性名詞',
             academic: '学術用語',
-            special: 'その他'
+            special: '動詞'
         };
 
         // LocalStorageから単語を読み込む
@@ -863,7 +863,7 @@
             }
 
             // デフォルト
-            return 'special';
+            return 'female';
         }
 
         // 新しい単語を追加
