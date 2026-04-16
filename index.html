@@ -31,6 +31,12 @@
         /* 赤シートスイッチの装飾 */
         .controls {
             margin-bottom: 30px;
+            position: sticky;
+            top: 0;
+            background-color: #fcfaf2;
+            z-index: 100;
+            padding: 12px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .switch-container {
@@ -38,12 +44,48 @@
             font-weight: bold;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 12px;
             background: #ffffff;
             padding: 12px 24px;
             border-radius: 50px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             user-select: none;
+            border: 2px solid #ddd;
+            transition: all 0.3s;
+            width: fit-content;
+            margin: 0 auto;
+            font-size: 1rem;
+        }
+
+        .switch-container:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* 赤シートモード有効時 */
+        .switch-container.active {
+            background: #e76f51;
+            color: white;
+            border-color: #e76f51;
+            box-shadow: 0 4px 15px rgba(231, 111, 81, 0.3);
+        }
+
+        /* スマホ対応：赤シート欄を小さく */
+        @media (max-width: 600px) {
+            .controls {
+                margin-bottom: 15px;
+                padding: 8px 0;
+            }
+
+            .switch-container {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+                gap: 8px;
+            }
+
+            .switch-container span {
+                font-size: 0.85rem;
+            }
         }
 
         /* カードの並び */
@@ -324,10 +366,9 @@
         <p>MacBookで開発する楽々単語帳</p>
         
         <div class="controls">
-            <label class="switch-container">
-                <input type="checkbox" id="redSheetToggle">
+            <button class="switch-container" id="redSheetToggle" type="button">
                 <span>🔴 赤シートモード</span>
-            </label>
+            </button>
         </div>
 
         <div class="nav-buttons">
@@ -569,8 +610,9 @@
 
         // 赤シートトグル
         const toggle = document.getElementById('redSheetToggle');
-        toggle.addEventListener('change', () => {
-            if (toggle.checked) {
+        toggle.addEventListener('click', () => {
+            toggle.classList.toggle('active');
+            if (toggle.classList.contains('active')) {
                 document.body.classList.add('hide-mode');
             } else {
                 document.body.classList.remove('hide-mode');
