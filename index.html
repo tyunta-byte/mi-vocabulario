@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>楽々スペイン語単語帳</title>
+    <style>
+        /* --- CSS: デザインの部分 --- */
+        body {
+            background-color: #fcfaf2; /* 優しいクリーム色 */
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+            color: #333;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 50px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #2a9d8f;
+            margin-bottom: 10px;
+        }
+
+        /* 赤シートスイッチの装飾 */
+        .controls {
+            margin-bottom: 30px;
+        }
+
+        .switch-container {
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #ffffff;
+            padding: 12px 24px;
+            border-radius: 50px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            user-select: none;
+        }
+
+        /* カードの並び */
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            max-width: 1000px;
+        }
+
+        /* ステッカー風カードデザイン */
+        .card {
+            background: white;
+            width: 200px;
+            padding: 25px;
+            border-radius: 25px; /* コロンとした丸み */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+            position: relative;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-5px) rotate(1deg);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+        }
+
+        /* カテゴリ別の色（ステッカーの縁取り） */
+        .card.female { border-bottom: 8px solid #ffb7b2; } /* ピンク */
+        .card.male   { border-bottom: 8px solid #a2d2ff; } /* ブルー */
+        .card.academic { border-bottom: 8px solid #e9c46a; } /* ゴールド */
+        .card.special { border-bottom: 8px solid #b5e48c; } /* グリーン */
+
+        .word-main {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        hr {
+            border: none;
+            border-top: 2px dashed #eee;
+            margin: 15px 0;
+        }
+
+        /* 日本語（赤シート対象） */
+        .word-sub {
+            font-size: 1.1rem;
+            color: #e76f51; /* 赤シートで消えやすい赤 */
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+
+        /* 【重要】赤シートモードの動き */
+        body.hide-mode .word-sub {
+            background-color: #e76f51; /* 文字と同じ色で塗りつぶす */
+            color: #e76f51;            /* 文字を消す */
+            cursor: pointer;
+        }
+
+        /* クリックで解除された単語 */
+        body.hide-mode .word-sub.revealed {
+            background-color: transparent;
+            color: #e76f51;
+            cursor: pointer;
+        }
+
+        /* 隠れている時にタップ・クリックした時だけ表示（古いスタイル） */
+        body.hide-mode .word-sub:active {
+            background-color: #fff1f0;
+            color: #e76f51;
+        }
+
+        /* 追加フォームのスタイル */
+        .add-form {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+            margin-bottom: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .add-form h2 {
+            text-align: center;
+            color: #2a9d8f;
+            margin-top: 0;
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2a9d8f;
+        }
+
+        .translate-btn {
+            padding: 8px 16px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .translate-btn:hover {
+            background-color: #357abd;
+        }
+
+        .translate-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .add-button {
+            width: 100%;
+            padding: 12px;
+            background: #2a9d8f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .add-button:hover {
+            background-color: #1f7f74;
+        }
+
+        /* ナビゲーションのスタイル */
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .nav-btn.female {
+            background-color: #ffb7b2;
+            color: #333;
+        }
+
+        .nav-btn.male {
+            background-color: #a2d2ff;
+            color: #333;
+        }
+
+        .nav-btn.academic {
+            background-color: #e9c46a;
+            color: #333;
+        }
+
+        .nav-btn.special {
+            background-color: #b5e48c;
+            color: #333;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* セクションのスタイル */
+        .category-section {
+            width: 100%;
+            margin-bottom: 50px;
+            scroll-margin-top: 100px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid;
+        }
+
+        .section-title.female {
+            color: #ffb7b2;
+            border-bottom-color: #ffb7b2;
+        }
+
+        .section-title.male {
+            color: #a2d2ff;
+            border-bottom-color: #a2d2ff;
+        }
+
+        .section-title.academic {
+            color: #e9c46a;
+            border-bottom-color: #e9c46a;
+        }
+
+        .section-title.special {
+            color: #b5e48c;
+            border-bottom-color: #b5e48c;
+        }
+
+        /* 削除ボタンのスタイル */
+        .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s, background-color 0.2s;
+        }
+
+        .card:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .delete-btn:hover {
+            background-color: #ff5252;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Mi Vocabulario ✨</h1>
+        <p>MacBookで開発する楽々単語帳</p>
+        
+        <div class="controls">
+            <label class="switch-container">
+                <input type="checkbox" id="redSheetToggle">
+                <span>🔴 赤シートモード</span>
+            </label>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="nav-btn female" onclick="scrollToSection('female')">女性名詞</button>
+            <button class="nav-btn male" onclick="scrollToSection('male')">男性名詞</button>
+            <button class="nav-btn academic" onclick="scrollToSection('academic')">学術用語</button>
+            <button class="nav-btn special" onclick="scrollToSection('special')">その他</button>
+        </div>
+    </header>
+
+    <div class="add-form">
+        <h2>新しい単語を追加</h2>
+        <div class="form-group">
+            <label for="newWord">スペイン語</label>
+            <input type="text" id="newWord" placeholder="例: la casa">
+            <button class="translate-btn" onclick="translateWord()" id="translateBtn">AI翻訳</button>
+        </div>
+        <div class="form-group">
+            <label for="newTrans">日本語訳</label>
+            <input type="text" id="newTrans" placeholder="例: 家">
+        </div>
+        <div class="form-group">
+            <label for="newCategory">カテゴリ</label>
+            <select id="newCategory">
+                <option value="female">女性名詞（ピンク）</option>
+                <option value="male">男性名詞（ブルー）</option>
+                <option value="academic">学術用語（ゴールド）</option>
+                <option value="special">その他（グリーン）</option>
+            </select>
+        </div>
+        <button class="add-button" onclick="addNewWord()">追加</button>
+    </div>
+
+    <main id="sectionsContainer"></main>
+
+    <script>
+        // 初期単語データ
+        let vocab = [
+            {"word": "la luna", "trans": "月", "cat": "female"},
+            {"word": "el sol", "trans": "太陽", "cat": "male"},
+            {"word": "gracias", "trans": "ありがとう", "cat": "female"},
+            {"word": "Redeem", "trans": "引き換える / 挽回する", "cat": "special"},
+        ];
+
+        const categories = {
+            female: '女性名詞',
+            male: '男性名詞',
+            academic: '学術用語',
+            special: 'その他'
+        };
+
+        // LocalStorageから単語を読み込む
+        function loadVocab() {
+            const saved = localStorage.getItem('spanishVocab');
+            if (saved) {
+                vocab = JSON.parse(saved);
+            }
+        }
+
+        // LocalStorageに単語を保存
+        function saveVocab() {
+            localStorage.setItem('spanishVocab', JSON.stringify(vocab));
+        }
+
+        // カード要素を作成
+        function createCard(word, trans, cat, index) {
+            const card = document.createElement('div');
+            card.className = `card ${cat}`;
+            card.innerHTML = `
+                <button class="delete-btn" onclick="deleteWord(${index})" title="削除">×</button>
+                <span class="word-main">${word}</span>
+                <hr>
+                <span class="word-sub" onclick="toggleReveal(this)">${trans}</span>
+            `;
+            return card;
+        }
+
+        // 単語を削除
+        function deleteWord(index) {
+            if (confirm('この単語を削除しますか？')) {
+                vocab.splice(index, 1);
+                saveVocab();
+                renderCards();
+            }
+        }
+
+        // 赤シート解除トグル
+        function toggleReveal(element) {
+            if (document.body.classList.contains('hide-mode')) {
+                element.classList.toggle('revealed');
+            }
+        }
+
+        // カテゴリごとに分けて描画
+        function renderCards() {
+            const container = document.getElementById('sectionsContainer');
+            container.innerHTML = '';
+
+            Object.keys(categories).forEach(cat => {
+                const catVocab = vocab.filter(item => item.cat === cat);
+                
+                const section = document.createElement('section');
+                section.id = cat;
+                section.className = 'category-section';
+
+                const title = document.createElement('h2');
+                title.className = `section-title ${cat}`;
+                title.textContent = categories[cat];
+                section.appendChild(title);
+
+                const cardContainer = document.createElement('div');
+                cardContainer.className = 'card-container';
+
+                catVocab.forEach(item => {
+                    const index = vocab.indexOf(item);
+                    const card = createCard(item.word, item.trans, item.cat, index);
+                    cardContainer.appendChild(card);
+                });
+
+                section.appendChild(cardContainer);
+                container.appendChild(section);
+            });
+        }
+
+        // スクロール機能
+        function scrollToSection(catId) {
+            const section = document.getElementById(catId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // AI翻訳機能
+        async function translateWord() {
+            const wordInput = document.getElementById('newWord');
+            const transInput = document.getElementById('newTrans');
+            const categoryInput = document.getElementById('newCategory');
+            const translateBtn = document.getElementById('translateBtn');
+
+            const word = wordInput.value.trim();
+            if (!word) {
+                alert('スペイン語を入力してください');
+                return;
+            }
+
+            translateBtn.disabled = true;
+            translateBtn.textContent = '翻訳中...';
+
+            try {
+                const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=es|ja`);
+                const data = await response.json();
+
+                if (data.responseData && data.responseData.translatedText) {
+                    transInput.value = data.responseData.translatedText;
+
+                    // カテゴリ自動判定
+                    const category = detectCategory(word);
+                    categoryInput.value = category;
+                } else {
+                    alert('翻訳に失敗しました。手動で入力してください。');
+                }
+            } catch (error) {
+                console.error('Translation error:', error);
+                alert('翻訳に失敗しました。手動で入力してください。');
+            } finally {
+                translateBtn.disabled = false;
+                translateBtn.textContent = 'AI翻訳';
+            }
+        }
+
+        // カテゴリ自動判定関数
+        function detectCategory(word) {
+            const lowerWord = word.toLowerCase().trim();
+
+            // 冠詞で判定
+            if (lowerWord.startsWith('el ') || lowerWord.startsWith('los ')) {
+                return 'male'; // 男性名詞
+            } else if (lowerWord.startsWith('la ') || lowerWord.startsWith('las ')) {
+                return 'female'; // 女性名詞
+            }
+
+            // 動詞の特徴（-ar, -er, -irで終わる）
+            if (/\b\w+(ar|er|ir)\b/.test(lowerWord)) {
+                return 'special'; // 動詞など
+            }
+
+            // 学術用語っぽい単語
+            const academicWords = ['principio', 'teoría', 'matemática', 'filosofía', 'doctor', 'phd', 'ciencia'];
+            if (academicWords.some(term => lowerWord.includes(term))) {
+                return 'academic';
+            }
+
+            // デフォルト
+            return 'special';
+        }
+
+        // 新しい単語を追加
+        function addNewWord() {
+            const wordInput = document.getElementById('newWord');
+            const transInput = document.getElementById('newTrans');
+            const categoryInput = document.getElementById('newCategory');
+
+            const word = wordInput.value.trim();
+            const trans = transInput.value.trim();
+            const cat = categoryInput.value;
+
+            if (!word || !trans) {
+                alert('スペイン語と日本語訳を両方入力してください');
+                return;
+            }
+
+            vocab.push({word, trans, cat});
+            saveVocab();
+            renderCards();
+
+            // フォームをリセット
+            wordInput.value = '';
+            transInput.value = '';
+            categoryInput.value = 'female';
+            wordInput.focus();
+        }
+
+        // Enterキーで追加できるように
+        document.getElementById('newTrans').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addNewWord();
+            }
+        });
+
+        // スペイン語入力でEnterキーで翻訳
+        document.getElementById('newWord').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                translateWord();
+            }
+        });
+
+        // 赤シートトグル
+        const toggle = document.getElementById('redSheetToggle');
+        toggle.addEventListener('change', () => {
+            if (toggle.checked) {
+                document.body.classList.add('hide-mode');
+            } else {
+                document.body.classList.remove('hide-mode');
+                // 赤シートオフ時に解除状態をリセット
+                document.querySelectorAll('.word-sub.revealed').forEach(el => {
+                    el.classList.remove('revealed');
+                });
+            }
+        });
+
+        // ページ読み込み時に実行
+        loadVocab();
+        renderCards();
+    </script>
+
+</body>
+</html>
