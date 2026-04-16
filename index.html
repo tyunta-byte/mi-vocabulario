@@ -183,6 +183,7 @@
         .card {
             background: white;
             width: 200px;
+            min-height: 180px;
             padding: 25px;
             border-radius: 25px; /* コロンとした丸み */
             box-shadow: 0 10px 25px rgba(0,0,0,0.04);
@@ -217,6 +218,8 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            padding: 15px;
+            box-sizing: border-box;
         }
 
         .card-back {
@@ -224,6 +227,8 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-radius: 23px;
+            padding: 15px;
+            box-sizing: border-box;
         }
 
         .card-back .word-main {
@@ -508,6 +513,7 @@
             justify-content: center;
             opacity: 0;
             transition: opacity 0.2s, background-color 0.2s;
+            z-index: 10;
         }
 
         .card:hover .delete-btn {
@@ -616,9 +622,9 @@
             const conjugations = generateConjugations(word);
 
             card.innerHTML = `
+                <button class="delete-btn" onclick="deleteWord(${index}); event.stopPropagation();" title="削除">×</button>
                 <div class="card-inner">
                     <div class="card-front">
-                        <button class="delete-btn" onclick="deleteWord(${index}); event.stopPropagation();" title="削除">×</button>
                         <span class="word-main">${word}</span>
                         <hr>
                         <span class="word-sub" onclick="toggleReveal(this); event.stopPropagation();">${trans}</span>
