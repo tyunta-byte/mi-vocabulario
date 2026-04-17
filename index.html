@@ -625,7 +625,19 @@
         function loadVocab() {
             const saved = localStorage.getItem('spanishVocab');
             if (saved) {
-                vocab = JSON.parse(saved);
+                const savedVocab = JSON.parse(saved);
+                // デフォルト単語数（5つ）より少ない場合はデフォルトに戻す
+                if (savedVocab.length < 5) {
+                    vocab = [
+                        {"word": "la luna", "trans": "月", "cat": "female"},
+                        {"word": "el sol", "trans": "太陽", "cat": "male"},
+                        {"word": "gracias", "trans": "ありがとう", "cat": "female"},
+                        {"word": "estar", "trans": "いる（一時的）", "cat": "special"},
+                        {"word": "ser", "trans": "である（恒久的）", "cat": "special"},
+                    ];
+                } else {
+                    vocab = savedVocab;
+                }
             }
         }
 
