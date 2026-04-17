@@ -268,6 +268,29 @@
             margin: 5px 0;
         }
 
+        /* 例文スタイル */
+        .example-section {
+            text-align: left;
+            padding: 10px;
+        }
+
+        .example-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #2a9d8f;
+        }
+
+        .example-spanish {
+            font-style: italic;
+            margin-bottom: 5px;
+            color: #2a9d8f;
+        }
+
+        .example-japanese {
+            color: #666;
+            font-size: 0.9em;
+        }
+
         .card:hover {
             transform: translateY(-5px) rotate(1deg);
             box-shadow: 0 15px 30px rgba(0,0,0,0.08);
@@ -691,7 +714,8 @@
             // 動詞かどうかチェック（-ar, -er, -irで終わる）
             const verbMatch = lowerWord.match(/^(.+)(ar|er|ir)$/);
             if (!verbMatch) {
-                return '<div class="conjugation-item">活用なし</div>';
+                // 動詞以外の場合、例文を表示
+                return generateExample(word);
             }
 
             const stem = verbMatch[1];
@@ -729,6 +753,43 @@
             }
 
             return conjugations;
+        }
+
+        // 動詞以外の場合の例文生成
+        function generateExample(word) {
+            const lowerWord = word.toLowerCase().trim();
+            let example = '';
+            let translation = '';
+
+            // 単語に基づいて例文を生成
+            if (lowerWord.includes('luna')) {
+                example = 'La luna brilla en la noche.';
+                translation = '月が夜に輝いている。';
+            } else if (lowerWord.includes('sol')) {
+                example = 'El sol sale por la mañana.';
+                translation = '太陽が朝に出る。';
+            } else if (lowerWord.includes('gracias')) {
+                example = 'Gracias por tu ayuda.';
+                translation = 'あなたの助けに感謝します。';
+            } else if (lowerWord.includes('estar')) {
+                example = 'Estoy en casa.';
+                translation = '私は家にいる。';
+            } else if (lowerWord.includes('ser')) {
+                example = 'Soy estudiante.';
+                translation = '私は学生です。';
+            } else {
+                // デフォルト例文
+                example = `Me gusta ${word}.`;
+                translation = `${word}が好きです。`;
+            }
+
+            return `
+                <div class="example-section">
+                    <div class="example-title">例文</div>
+                    <div class="example-spanish">${example}</div>
+                    <div class="example-japanese">${translation}</div>
+                </div>
+            `;
         }
 
         // 単語を削除
