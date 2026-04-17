@@ -144,6 +144,14 @@
             background-color: #f5f5f5;
         }
 
+        /* 赤シートモード有効時 */
+        .switch-container.active {
+            background: #e76f51;
+            color: white;
+            border-color: #e76f51;
+            box-shadow: 0 4px 15px rgba(231, 111, 81, 0.3);
+        }
+
         /* 青シートモード有効時 */
         .switch-container.blue-sheet.active {
             background: #4a90e2;
@@ -549,10 +557,10 @@
         
         <div class="controls">
             <button class="switch-container" id="redSheetToggle" type="button">
-                <span>🔴 赤シートモード</span>
+                <span>Hoja Roja</span>
             </button>
             <button class="switch-container blue-sheet" id="blueSheetToggle" type="button">
-                <span>🔵 青シートモード</span>
+                <span>Hoja Azul</span>
             </button>
         </div>
 
